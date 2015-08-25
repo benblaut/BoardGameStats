@@ -11,7 +11,15 @@
         Title="Board Game Stats" Height="720" Width="1080"
         Loaded="Window_Loaded">
     <Grid>
-        <DataGrid Name="PlayerDataGrid" Width="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding Players}" />
+        <DataGrid Name="PlayerDataGrid" Height="Auto" Width="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding Players}" AutoGenerateColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Player" Binding="{Binding Name}" />
+                <DataGridTextColumn Header="Wins" Binding="{Binding Wins}" />
+                <DataGridTextColumn Header="Losses" Binding="{Binding Losses}" />
+                <DataGridTextColumn Header="Games Played" Binding="{Binding GamesPlayed}" />
+                <DataGridTextColumn Header="Win %" Binding="{Binding WinPercentage, StringFormat='{}{0:P}'}" />
+            </DataGrid.Columns>
+        </DataGrid>
         <xctk:BusyIndicator x:Name="LoadingIndicator" BusyContent="{Binding}" Background="#FF252525">
             <xctk:BusyIndicator.BusyContentTemplate>
                 <DataTemplate>

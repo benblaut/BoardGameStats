@@ -257,7 +257,7 @@ namespace BoardGameStats
 
         public double GetWinPercentage()
         {
-            return Math.Round((double)Wins / (double)GamesPlayed, 2);
+            return Math.Round((double)Wins / (double)GamesPlayed, 4);
         }
     }
 }
