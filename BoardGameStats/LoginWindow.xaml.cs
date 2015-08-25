@@ -10,6 +10,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 using Google.GData.Client;
@@ -44,14 +45,17 @@ namespace BoardGameStats
             parameters.Scope = SCOPE;
 
             string authorizationUrl = OAuthUtil.CreateOAuth2AuthorizationUrl(parameters);
-            URL.Text = authorizationUrl;
+            LoginBrowser.Source = new Uri(authorizationUrl, UriKind.Absolute);
         }
 
-        private void GetAccessToken(object sender, RoutedEventArgs e)
+        private void GetAccessCode(object sender, NavigationEventArgs e)
         {
-            if (Key.Text.Length > 0)
+            mshtml.IHTMLDocument2 doc = LoginBrowser.Document as mshtml.IHTMLDocument2;
+            string accessCode = doc.title;
+            if (accessCode.Substring(0, 7) == "Success")
             {
-                parameters.AccessCode = Key.Text;
+                accessCode = accessCode.Remove(0, 13);
+                parameters.AccessCode = accessCode;// Key.Text;
                 OAuthUtil.GetAccessToken(parameters);
                 string accessToken = parameters.AccessToken;
 
@@ -66,10 +70,6 @@ namespace BoardGameStats
                 {
                     DialogResult = false;
                 }
-            }
-            else
-            {
-                MessageBox.Show("Please enter the url into your browser, then copy the authentication code.");
             }
         }
     }

@@ -1,22 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
 using System.ComponentModel;
 
-using Google.GData.Extensions;
 using Google.GData.Spreadsheets;
 using MahApps.Metro.Controls;
 
@@ -61,11 +49,10 @@ namespace BoardGameStats
 
                 LoadingIndicator.IsBusy = true;
                 worker.RunWorkerAsync();
-                //GetSpreadsheet(loginWindow.service); 
             }
             else
             {
-                MessageBox.Show("Fuck you, wrong!");
+                System.Environment.Exit(1);
             }
         }
 
@@ -87,7 +74,7 @@ namespace BoardGameStats
 
             if (spreadsheet == null)
             {
-                MessageBox.Show("You don't appear to have access to the proper spreadsheet.");
+                System.Windows.MessageBox.Show("You don't appear to have access to the proper spreadsheet.");
                 return;
             }
 
@@ -231,19 +218,7 @@ namespace BoardGameStats
                     }
                 }
             }
-
-            //DisplayStatistics();
         }
-
-        /*private void DisplayStatistics()
-        {
-            foreach (Player player in Players)
-            {
-                player.WinPercentage = player.GetWinPercentage();
-            }
-
-            PlayerDataGrid.ItemsSource = Players;
-        }*/
 
         private void SortPlacement(object sender, RoutedEventArgs e)
         {

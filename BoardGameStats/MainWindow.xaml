@@ -12,7 +12,19 @@
     <Grid>
         <DataGrid Name="PlayerDataGrid" ItemsSource="{Binding Players}">
         </DataGrid>
-        <xctk:BusyIndicator x:Name="LoadingIndicator" >
+        <xctk:BusyIndicator x:Name="LoadingIndicator" BusyContent="{Binding}" Background="#FF252525">
+            <xctk:BusyIndicator.BusyContentTemplate>
+                <DataTemplate>
+                    <StackPanel Margin="4">
+                        <TextBlock Text="Fetching statistics, please wait..." FontWeight="Bold" HorizontalAlignment="Center" />
+                    </StackPanel>
+                </DataTemplate>
+            </xctk:BusyIndicator.BusyContentTemplate>
+            <xctk:BusyIndicator.OverlayStyle>
+                <Style TargetType="Rectangle">
+                    <Setter Property="Fill" Value="#FF252525" />
+                </Style>
+            </xctk:BusyIndicator.OverlayStyle>
         </xctk:BusyIndicator>
     </Grid>
 </Controls:MetroWindow>

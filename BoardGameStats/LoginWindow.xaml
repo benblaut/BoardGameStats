@@ -6,23 +6,9 @@
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
-        ShowInTaskbar="False"
         ResizeMode="NoResize"
-        Title="Google Authentication" Height="400" Width="400">
+        Title="Google Authentication" Height="400" Width="450">
     <Grid>
-        <Image Height="50" Width="50" Margin="171,10,171,309" Source="google_logo_small.png" />
-        <TextBlock TextWrapping="WrapWithOverflow" Padding="10" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,65,10,249" Width="372" Height="55">
-            Please go to the following URL in your browser, then paste the authentication code below.
-        </TextBlock>
-        <TextBox Name="Key" Text="{Binding myKey}" Height="Auto" Margin="10,218,10,113" />
-        <TextBlock TextWrapping="WrapWithOverflow" Padding="10" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10,168,10,151" Width="372" Height="50">
-            Paste the authentication code here, then click Authenticate.
-        </TextBlock>
-        <TextBox Name="URL" Margin="10,125,10,206" Height="Auto" />
-        <Button Name="AuthenticateButton" Click="GetAccessToken" Margin="86,292,86,39">
-            <StackPanel>
-                <TextBlock>Authenticate</TextBlock>
-            </StackPanel>
-        </Button>
+        <WebBrowser Name="LoginBrowser" LoadCompleted="GetAccessCode" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />   
     </Grid>
 </Controls:MetroWindow>
