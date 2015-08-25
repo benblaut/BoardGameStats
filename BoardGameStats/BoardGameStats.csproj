@@ -255,9 +255,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="google_logo_small.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="Resources\" />
   </ItemGroup>
   <ItemGroup>
