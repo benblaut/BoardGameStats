@@ -18,6 +18,7 @@
                 <DataGridTextColumn Header="Losses" Binding="{Binding Losses}" />
                 <DataGridTextColumn Header="Games Played" Binding="{Binding GamesPlayed}" />
                 <DataGridTextColumn Header="Win %" Binding="{Binding WinPercentage, StringFormat='{}{0:P}'}" />
+                <DataGridTextColumn Header="Avg. Placement" Binding="{Binding AveragePlacement}" />
             </DataGrid.Columns>
         </DataGrid>
         <xctk:BusyIndicator x:Name="LoadingIndicator" BusyContent="{Binding}" Background="#FF252525">

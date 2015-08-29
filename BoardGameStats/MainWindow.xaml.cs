@@ -218,11 +218,11 @@ namespace BoardGameStats
                     }
                 }
             }
-        }
 
-        private void SortPlacement(object sender, RoutedEventArgs e)
-        {
-            //TODO:Placement sorting
+            foreach (Player player in Players)
+            {
+                player.AveragePlacement = player.GetAveragePlacement();
+            }
         }
 
         private List<CellFeed> DoCellQuery(SpreadsheetsService service, WorksheetFeed wsFeed, uint minRow, uint minColumn, uint maxColumn)
@@ -254,10 +254,36 @@ namespace BoardGameStats
         public int GamesPlayed { get; set; }
         public double WinPercentage { get; set; }
         public List<int> Placement { get; set; }
+        public string AveragePlacement { get; set; }
 
         public double GetWinPercentage()
         {
             return Math.Round((double)Wins / (double)GamesPlayed, 4);
+        }
+
+        public string GetAveragePlacement()
+        {
+            string averagePlacement;
+            int total = 0;
+            int numPlacements = 0;
+            
+            if (Placement != null)
+            {
+                foreach (int placement in Placement)
+                {
+                    total += placement;
+                    numPlacements++;
+                }
+            }
+
+            averagePlacement = Math.Round((double)total / (double)numPlacements, 2).ToString();
+
+            if (averagePlacement == "NaN")
+            {
+                averagePlacement = "-";
+            }
+
+            return averagePlacement;
         }
     }
 }
