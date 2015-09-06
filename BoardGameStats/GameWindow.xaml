@@ -9,9 +9,9 @@
         Title="GameWindow" Height="720" Width="1080">
     <Grid>
         <DockPanel>
-            <DataGrid Name="GameDataGrid" ItemsSource="{Binding}" AutoGenerateColumns="False">
+            <DataGrid Name="GameDataGrid" ItemsSource="{Binding}" AutoGenerateColumns="False" GridLinesVisibility="All">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Date" Binding="{Binding Date}" />
+                    <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat='{}{0:MM/dd/yyyy}'}" />
                     <DataGridTemplateColumn Header="Participants">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
