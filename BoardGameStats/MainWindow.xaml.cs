@@ -349,17 +349,58 @@ namespace BoardGameStats
                                                  .Replace("'", string.Empty);
             gameWindow.Name = windowNameTrimmed;
 
-            List<GameEvent> myGames = new List<GameEvent>();
+            List<GameEvent> relevantGames = new List<GameEvent>();
+            List<Player> winnerList = new List<Player>();
+            List<Player> loserList = new List<Player>();
+            List<Player> masterList = new List<Player>();
+            List<Player> failureList = new List<Player>();
 
             foreach (GameEvent gameEvent in GamesPlayed)
             {
                 if (gameEvent.Name == gameWindow.Title)
                 {
-                    myGames.Add(gameEvent);
+                    relevantGames.Add(gameEvent);
                 }
             }
 
-            gameWindow.GameDataGrid.ItemsSource = myGames;
+            foreach (GameEvent gameEvent in relevantGames)
+            {
+                if (gameEvent.Winners != null)
+                {
+                    foreach (Player player in gameEvent.Winners)
+                    {
+                        winnerList.Add(player);
+                    }
+                }
+                
+                if (gameEvent.Losers != null)
+                {
+                    foreach (Player player in gameEvent.Losers)
+                    {
+                        loserList.Add(player);
+                    }
+                }
+            }
+
+            ILookup<Player, Player> grouped = winnerList.ToLookup(x => x);
+            int maxRepetitions;
+
+            if (grouped.Count != 0)
+            {
+                maxRepetitions = grouped.Max(x => x.Count());
+                masterList = grouped.Where(x => x.Count() == maxRepetitions).Select(x => x.Key).ToList();
+            }
+
+            grouped = loserList.ToLookup(x => x);
+            if (grouped.Count != 0)
+            {
+                maxRepetitions = grouped.Max(x => x.Count());
+                failureList = grouped.Where(x => x.Count() == maxRepetitions).Select(x => x.Key).ToList();
+            }
+
+            gameWindow.GameDataGrid.ItemsSource = relevantGames;
+            gameWindow.MasterListBox.ItemsSource = masterList;
+            gameWindow.FailureListBox.ItemsSource = failureList;
 
             gameWindow.Show();
         }

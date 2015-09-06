@@ -8,32 +8,45 @@
         mc:Ignorable="d"
         Title="GameWindow" Height="720" Width="1080">
     <Grid>
-        <DataGrid Name="GameDataGrid" ItemsSource="{Binding GamesPlayed}" AutoGenerateColumns="False">
-            <DataGrid.Columns>
-                <!--<DataGridTextColumn Header="Name" Binding="{Binding Name}" />-->
-                <DataGridTextColumn Header="Date" Binding="{Binding Date}" />
-                <DataGridTemplateColumn Header="Participants">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <ListBox ItemsSource="{Binding Participants}" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="Winners">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <ListBox ItemsSource="{Binding Winners}" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="Losers">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <ListBox ItemsSource="{Binding Losers}" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
+        <DockPanel>
+            <DataGrid Name="GameDataGrid" ItemsSource="{Binding}" AutoGenerateColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Date" Binding="{Binding Date}" />
+                    <DataGridTemplateColumn Header="Participants">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <ListBox ItemsSource="{Binding Participants}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Winners">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <ListBox ItemsSource="{Binding Winners}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Losers">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <ListBox ItemsSource="{Binding Losers}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+            <StackPanel DockPanel.Dock="Top" Width="100" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock HorizontalAlignment="Center" FontWeight="Bold" TextDecorations="Underline" FontSize="18.667">
+                    Master(s)
+                </TextBlock>
+                <ListBox Name="MasterListBox" ItemsSource="{Binding}" />
+            </StackPanel>
+            <StackPanel DockPanel.Dock="Top" Width="100" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock HorizontalAlignment="Center" FontWeight="Bold" TextDecorations="Underline" FontSize="18.667">
+                    Failure(s)
+                </TextBlock>
+                <ListBox Name="FailureListBox" ItemsSource="{Binding}" />
+            </StackPanel>
+        </DockPanel>
     </Grid>
 </Controls:MetroWindow>
