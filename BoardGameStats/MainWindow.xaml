@@ -11,16 +11,23 @@
         Title="Board Game Stats" Height="720" Width="1080"
         Loaded="Window_Loaded">
     <Grid>
-        <DataGrid Name="PlayerDataGrid" Height="Auto" Width="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding Players}" AutoGenerateColumns="False">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Player" Binding="{Binding Name}" />
-                <DataGridTextColumn Header="Wins" Binding="{Binding Wins}" />
-                <DataGridTextColumn Header="Losses" Binding="{Binding Losses}" />
-                <DataGridTextColumn Header="Games Played" Binding="{Binding GamesPlayed}" />
-                <DataGridTextColumn Header="Win %" Binding="{Binding WinPercentage, StringFormat='{}{0:P}'}" />
-                <DataGridTextColumn Header="Avg. Placement" Binding="{Binding AveragePlacement}" />
-            </DataGrid.Columns>
-        </DataGrid>
+        <DockPanel>
+            <DataGrid Name="PlayerDataGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding Players}" AutoGenerateColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Player" Binding="{Binding Name}" />
+                    <DataGridTextColumn Header="Wins" Binding="{Binding Wins}" />
+                    <DataGridTextColumn Header="Losses" Binding="{Binding Losses}" />
+                    <DataGridTextColumn Header="Games Played" Binding="{Binding GamesPlayed}" />
+                    <DataGridTextColumn Header="Win %" Binding="{Binding WinPercentage, StringFormat='{}{0:P}'}" />
+                    <DataGridTextColumn Header="Avg. Placement" Binding="{Binding AveragePlacement}" />
+                </DataGrid.Columns>
+            </DataGrid>
+            <StackPanel Name="GamePanel">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" TextDecorations="Underline" FontSize="18.667">
+                    Games
+                </TextBlock>
+            </StackPanel>
+        </DockPanel>
         <xctk:BusyIndicator x:Name="LoadingIndicator" BusyContent="{Binding}" Background="#FF252525">
             <xctk:BusyIndicator.BusyContentTemplate>
                 <DataTemplate>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Text.RegularExpressions;
 using System.ComponentModel;
 
@@ -16,6 +17,8 @@ namespace BoardGameStats
     public partial class MainWindow : MetroWindow
     {
         public List<Player> Players { get; set; }
+        public WorksheetFeed Games { get; set; }
+        public List<GameEvent> GamesPlayed { get; set; }
 
         public MainWindow()
         {
@@ -45,6 +48,20 @@ namespace BoardGameStats
                 worker.RunWorkerCompleted += (o, ea) =>
                     {
                         LoadingIndicator.IsBusy = false;
+
+                        foreach (WorksheetEntry worksheet in Games.Entries)
+                        {
+                            Button gameButton = new Button();
+                            string worksheetName = worksheet.Title.Text;
+                            gameButton.Content = worksheetName;
+                            worksheetName = worksheetName.Replace(" ", string.Empty)
+                                                         .Replace("!", string.Empty)
+                                                         .Replace("'", string.Empty);
+                            gameButton.Name = worksheetName + "Button";
+                            gameButton.Width = 250;
+                            gameButton.Click += gameButton_Click;
+                            GamePanel.Children.Add(gameButton);
+                        }
                     };
 
                 LoadingIndicator.IsBusy = true;
@@ -52,7 +69,7 @@ namespace BoardGameStats
             }
             else
             {
-                System.Environment.Exit(1);
+                Environment.Exit(1);
             }
         }
 
@@ -74,17 +91,19 @@ namespace BoardGameStats
 
             if (spreadsheet == null)
             {
-                System.Windows.MessageBox.Show("You don't appear to have access to the proper spreadsheet.");
+                MessageBox.Show("You don't appear to have access to the proper spreadsheet.");
                 return;
             }
 
             WorksheetFeed wsFeed = spreadsheet.Worksheets;
+            Games = wsFeed;
 
-            GetPlayers(service, spreadsheet, wsFeed);
+            GetGameDateName(service, spreadsheet, wsFeed);
         }
 
-        private void GetPlayers(SpreadsheetsService service, SpreadsheetEntry spreadsheet, WorksheetFeed wsFeed)
+        private void GetPlayers(SpreadsheetsService service, SpreadsheetEntry entry, WorksheetFeed wsFeed)
         {
+            int cellID = 0;
             Players = new List<Player>();
 
             List<CellFeed> cellFeeds = DoCellQuery(service, wsFeed, 2, 2, 2);
@@ -108,18 +127,34 @@ namespace BoardGameStats
                         Player myPlayer = new Player();
                         myPlayer = Players.Find(player => player.Name == playerName);
                         myPlayer.GamesPlayed += 1;
+
+                        foreach (GameEvent gameEvent in GamesPlayed)
+                        {
+                            if (gameEvent.Name == wsFeed.Entries[i].Title.Text && gameEvent.ID == cellID)
+                            {
+                                if (gameEvent.Participants == null)
+                                {
+                                    gameEvent.Participants = new List<Player>();
+                                }
+
+                                gameEvent.Participants.Add(myPlayer);
+                            }
+                        }
                     }
+
+                    cellID++;
                 }
             }
 
-            GetWins(service, spreadsheet, wsFeed, Players);
+            GetWins(service, entry, wsFeed, Players);
         }
 
-        private void GetWins(SpreadsheetsService service, SpreadsheetEntry spreadsheet, WorksheetFeed wsFeed, List<Player> Players)
+        private void GetWins(SpreadsheetsService service, SpreadsheetEntry entry, WorksheetFeed wsFeed, List<Player> Players)
         {
+            int cellID = 0;
             List<CellFeed> cellFeeds = DoCellQuery(service, wsFeed, 2, 3, 3);
 
-            for (int i =0; i<cellFeeds.Count; i++)
+            for (int i = 0; i < cellFeeds.Count; i++)
             {
                 CellFeed currentCellFeed = cellFeeds[i];
 
@@ -158,8 +193,23 @@ namespace BoardGameStats
 
                                 myPlayer.Placement.Add(Int32.Parse(placement));
                             }
+
+                            foreach (GameEvent gameEvent in GamesPlayed)
+                            {
+                                if (gameEvent.Name == wsFeed.Entries[i].Title.Text && gameEvent.ID == cellID)
+                                {
+                                    if (gameEvent.Winners == null)
+                                    {
+                                        gameEvent.Winners = new List<Player>();
+                                    }
+
+                                    gameEvent.Winners.Add(myPlayer);
+                                }
+                            }
                         }
                     }
+
+                    cellID++;
                 }
             }
 
@@ -168,11 +218,12 @@ namespace BoardGameStats
                 player.WinPercentage = player.GetWinPercentage();
             }
 
-            GetLosses(service, spreadsheet, wsFeed, Players);
+            GetLosses(service, entry, wsFeed, Players);
         }
         
-        private void GetLosses(SpreadsheetsService service, SpreadsheetEntry spreadsheet, WorksheetFeed wsFeed, List<Player> Players)
+        private void GetLosses(SpreadsheetsService service, SpreadsheetEntry entry, WorksheetFeed wsFeed, List<Player> Players)
         {
+            int cellID = 0;
             List<CellFeed> cellFeeds = DoCellQuery(service, wsFeed, 2, 4, 4);
 
             for (int i = 0; i < cellFeeds.Count; i++)
@@ -214,8 +265,23 @@ namespace BoardGameStats
 
                                 myPlayer.Placement.Add(Int32.Parse(placement));
                             }
+
+                            foreach (GameEvent gameEvent in GamesPlayed)
+                            {
+                                if (gameEvent.Name == wsFeed.Entries[i].Title.Text && gameEvent.ID == cellID)
+                                {
+                                    if (gameEvent.Losers == null)
+                                    {
+                                        gameEvent.Losers = new List<Player>();
+                                    }
+
+                                    gameEvent.Losers.Add(myPlayer);
+                                }
+                            }
                         }
                     }
+
+                    cellID++;
                 }
             }
 
@@ -223,6 +289,33 @@ namespace BoardGameStats
             {
                 player.AveragePlacement = player.GetAveragePlacement();
             }
+        }
+
+        private void GetGameDateName(SpreadsheetsService service, SpreadsheetEntry entry, WorksheetFeed wsFeed)
+        {
+            GamesPlayed = new List<GameEvent>();
+            List<CellFeed> cellFeeds = DoCellQuery(service, wsFeed, 2, 1, 1);
+
+            int gameID = 0;
+
+            for (int i = 0; i < cellFeeds.Count; i++)
+            {
+                CellFeed currentCellFeed = cellFeeds[i];
+
+                foreach (CellEntry cell in currentCellFeed.Entries)
+                {
+                    GameEvent newGameEvent = new GameEvent();
+                    string dateTimeString = cell.InputValue;
+                    DateTime dateTime = DateTime.Parse(dateTimeString);
+                    newGameEvent.Date = dateTime;
+                    newGameEvent.Name = wsFeed.Entries[i].Title.Text;
+                    newGameEvent.ID = gameID;
+                    GamesPlayed.Add(newGameEvent);
+                    gameID++;
+                }
+            }
+
+            GetPlayers(service, entry, wsFeed);
         }
 
         private List<CellFeed> DoCellQuery(SpreadsheetsService service, WorksheetFeed wsFeed, uint minRow, uint minColumn, uint maxColumn)
@@ -239,11 +332,47 @@ namespace BoardGameStats
                 CellFeed cellFeed = service.Query(cellQuery);
 
                 cellFeeds.Insert(i, cellFeed);
-                i += 1;
+                i++;
             }
 
             return cellFeeds;
         }
+
+        private void gameButton_Click(object sender, RoutedEventArgs e)
+        {
+            string windowName = ((sender as Button).Content).ToString();
+            GameWindow gameWindow = new GameWindow();
+            
+            gameWindow.Title = windowName;
+            string windowNameTrimmed = windowName.Replace(" ", string.Empty)
+                                                 .Replace("!", string.Empty)
+                                                 .Replace("'", string.Empty);
+            gameWindow.Name = windowNameTrimmed;
+
+            List<GameEvent> myGames = new List<GameEvent>();
+
+            foreach (GameEvent gameEvent in GamesPlayed)
+            {
+                if (gameEvent.Name == gameWindow.Title)
+                {
+                    myGames.Add(gameEvent);
+                }
+            }
+
+            gameWindow.GameDataGrid.ItemsSource = myGames;
+
+            gameWindow.Show();
+        }
+    }
+
+    public class GameEvent
+    {
+        public string Name { get; set; }
+        public int ID { get; set; }
+        public DateTime Date { get; set; }
+        public List<Player> Participants { get; set; }
+        public List<Player> Winners { get; set; }
+        public List<Player> Losers { get; set; }       
     }
 
     public class Player
@@ -255,6 +384,11 @@ namespace BoardGameStats
         public double WinPercentage { get; set; }
         public List<int> Placement { get; set; }
         public string AveragePlacement { get; set; }
+
+        public override string ToString()
+        {
+            return string.Format("{0}", Name);
+        }
 
         public double GetWinPercentage()
         {
