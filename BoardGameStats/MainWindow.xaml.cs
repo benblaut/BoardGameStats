@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Text.RegularExpressions;
 using System.ComponentModel;
 
@@ -19,6 +20,27 @@ namespace BoardGameStats
         public List<Player> Players { get; set; }
         public WorksheetFeed Games { get; set; }
         public List<GameEvent> GamesPlayed { get; set; }
+        public List<string> InsultList { get; set; }
+
+        private bool WinsFilter(object item)
+        {
+            if (string.IsNullOrEmpty(WinsFilterTextBox.Text))
+            {
+                return true;
+            }
+            else
+            {
+                int textAsNum;
+                if (Int32.TryParse(WinsFilterTextBox.Text, out textAsNum))
+                {
+                    return ((item as Player).Wins.CompareTo(textAsNum) != -1);
+                }
+                else
+                {
+                    return true;
+                }
+            }
+        }
 
         public MainWindow()
         {
@@ -49,27 +71,62 @@ namespace BoardGameStats
                     {
                         LoadingIndicator.IsBusy = false;
 
-                        foreach (WorksheetEntry worksheet in Games.Entries)
-                        {
-                            Button gameButton = new Button();
-                            string worksheetName = worksheet.Title.Text;
-                            gameButton.Content = worksheetName;
-                            worksheetName = worksheetName.Replace(" ", string.Empty)
-                                                         .Replace("!", string.Empty)
-                                                         .Replace("'", string.Empty);
-                            gameButton.Name = worksheetName + "Button";
-                            gameButton.Width = 250;
-                            gameButton.Click += gameButton_Click;
-                            GamePanel.Children.Add(gameButton);
-                        }
+                        InitializeGameButtons();
+
+                        CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(PlayerDataGrid.ItemsSource);
+                        view.Filter = WinsFilter;
                     };
 
+                InitializeInsultList();
+                Random random = new Random();
+                int randomNum = random.Next(InsultList.Count);
                 LoadingIndicator.IsBusy = true;
+                LoadingIndicator.BusyContent = InsultList[randomNum];
                 worker.RunWorkerAsync();
             }
             else
             {
                 Environment.Exit(1);
+            }
+        }
+
+        private void InitializeInsultList()
+        {
+            InsultList = new List<string>();
+
+            InsultList.Add("Fetching statistics, calm your tits...");
+            InsultList.Add("Fetching statistics, cool your jets...");
+            InsultList.Add("Fetching statistics, if you can't stand the heat, get out of the street...");
+            InsultList.Add("Fetching statistics, u fuckin wot m8?...");
+            InsultList.Add("Fetching statistics, go masturbate or something...");
+            InsultList.Add("Fetching statistics, bitch...");
+            InsultList.Add("Fetching statistics, smoke weed every day...");
+            InsultList.Add("Fetching statistics, 360 no scope faggot...");
+            InsultList.Add("Fetching statistics, please w...RANDY ORTON OUTTA NOWHERE!!! RKO! RKO!");
+            InsultList.Add("Fetching statistics, <insert flavor text>...");
+            InsultList.Add("Fetching statistics, John Cena was here...");
+            InsultList.Add("Fetching statistics, bird up...");
+        }
+
+        private void WinsFilterTextBox_Changed(object sender, TextChangedEventArgs e)
+        {
+            CollectionViewSource.GetDefaultView(PlayerDataGrid.ItemsSource).Refresh();
+        }
+
+        private void InitializeGameButtons()
+        {
+            foreach (WorksheetEntry worksheet in Games.Entries)
+            {
+                Button gameButton = new Button();
+                string worksheetName = worksheet.Title.Text;
+                gameButton.Content = worksheetName;
+                worksheetName = worksheetName.Replace(" ", string.Empty)
+                                             .Replace("!", string.Empty)
+                                             .Replace("'", string.Empty);
+                gameButton.Name = worksheetName + "Button";
+                gameButton.Width = 250;
+                gameButton.Click += gameButton_Click;
+                GamePanel.Children.Add(gameButton);
             }
         }
 

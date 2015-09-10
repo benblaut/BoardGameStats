@@ -6,10 +6,14 @@
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:local="clr-namespace:BoardGameStats"
         mc:Ignorable="d"
+        EnableDWMDropShadow="True"
+        ResizeMode="CanResizeWithGrip"
+        WindowTransitionsEnabled="False"
+        WindowStartupLocation="CenterScreen"              
         Title="GameWindow" Height="720" Width="1080">
     <Grid>
         <DockPanel>
-            <DataGrid Name="GameDataGrid" ItemsSource="{Binding}" AutoGenerateColumns="False" GridLinesVisibility="All">
+            <DataGrid Name="GameDataGrid" ItemsSource="{Binding}" AutoGenerateColumns="False" CanUserAddRows="False" GridLinesVisibility="All">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat='{}{0:MM/dd/yyyy}'}" />
                     <DataGridTemplateColumn Header="Participants">
