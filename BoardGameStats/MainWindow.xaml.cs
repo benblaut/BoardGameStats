@@ -2,8 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Automation.Peers;
+using System.Windows.Automation.Provider;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+using System.Windows.Threading;
 using System.Text.RegularExpressions;
 using System.ComponentModel;
 
@@ -24,16 +28,56 @@ namespace BoardGameStats
 
         private bool WinsFilter(object item)
         {
-            if (string.IsNullOrEmpty(WinsFilterTextBox.Text))
+            if (string.IsNullOrEmpty(FilterTextBox.Text))
             {
                 return true;
             }
             else
             {
                 int textAsNum;
-                if (Int32.TryParse(WinsFilterTextBox.Text, out textAsNum))
+                if (Int32.TryParse(FilterTextBox.Text, out textAsNum))
                 {
                     return ((item as Player).Wins.CompareTo(textAsNum) != -1);
+                }
+                else
+                {
+                    return true;
+                }
+            }
+        }
+
+        private bool LossesFilter(object item)
+        {
+            if (string.IsNullOrEmpty(FilterTextBox.Text))
+            {
+                return true;
+            }
+            else
+            {
+                int textAsNum;
+                if (Int32.TryParse(FilterTextBox.Text, out textAsNum))
+                {
+                    return ((item as Player).Losses.CompareTo(textAsNum) != -1);
+                }
+                else
+                {
+                    return true;
+                }
+            }
+        }
+
+        private bool GamesPlayedFilter(object item)
+        {
+            if (string.IsNullOrEmpty(FilterTextBox.Text))
+            {
+                return true;
+            }
+            else
+            {
+                int textAsNum;
+                if (Int32.TryParse(FilterTextBox.Text, out textAsNum))
+                {
+                    return ((item as Player).GamesPlayed.CompareTo(textAsNum) != -1);
                 }
                 else
                 {
@@ -73,6 +117,7 @@ namespace BoardGameStats
 
                         InitializeGameButtons();
 
+                        FilterComboBox.SelectedIndex = 0;
                         CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(PlayerDataGrid.ItemsSource);
                         view.Filter = WinsFilter;
                     };
@@ -108,9 +153,35 @@ namespace BoardGameStats
             InsultList.Add("Fetching statistics, bird up...");
         }
 
-        private void WinsFilterTextBox_Changed(object sender, TextChangedEventArgs e)
+        private void FilterTextBox_Changed(object sender, TextChangedEventArgs e)
         {
             CollectionViewSource.GetDefaultView(PlayerDataGrid.ItemsSource).Refresh();
+        }
+
+        private void ComboBox_Changed(object sender, EventArgs e)
+        {
+            CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(PlayerDataGrid.ItemsSource);
+
+            if (FilterComboBox.Text == "wins.")
+            {
+                view.Filter = null;
+                view.Filter = WinsFilter;
+            }
+            else if (FilterComboBox.Text == "losses.")
+            {
+                view.Filter = null;
+                view.Filter = LossesFilter;
+            }
+            else if (FilterComboBox.Text == "games played.")
+            {
+                view.Filter = null;
+                view.Filter = GamesPlayedFilter;
+            }
+
+            if (PlayerDataGrid.ItemsSource != null)
+            {
+                CollectionViewSource.GetDefaultView(PlayerDataGrid.ItemsSource).Refresh();
+            }
         }
 
         private void InitializeGameButtons()
@@ -277,7 +348,7 @@ namespace BoardGameStats
 
             GetLosses(service, entry, wsFeed, Players);
         }
-        
+
         private void GetLosses(SpreadsheetsService service, SpreadsheetEntry entry, WorksheetFeed wsFeed, List<Player> Players)
         {
             int cellID = 0;
@@ -399,7 +470,7 @@ namespace BoardGameStats
         {
             string windowName = ((sender as Button).Content).ToString();
             GameWindow gameWindow = new GameWindow();
-            
+
             gameWindow.Title = windowName;
             string windowNameTrimmed = windowName.Replace(" ", string.Empty)
                                                  .Replace("!", string.Empty)
@@ -429,7 +500,7 @@ namespace BoardGameStats
                         winnerList.Add(player);
                     }
                 }
-                
+
                 if (gameEvent.Losers != null)
                 {
                     foreach (Player player in gameEvent.Losers)
@@ -470,7 +541,7 @@ namespace BoardGameStats
         public DateTime Date { get; set; }
         public List<Player> Participants { get; set; }
         public List<Player> Winners { get; set; }
-        public List<Player> Losers { get; set; }       
+        public List<Player> Losers { get; set; }
     }
 
     public class Player
@@ -498,7 +569,7 @@ namespace BoardGameStats
             string averagePlacement;
             int total = 0;
             int numPlacements = 0;
-            
+
             if (Placement != null)
             {
                 foreach (int placement in Placement)
@@ -516,6 +587,90 @@ namespace BoardGameStats
             }
 
             return averagePlacement;
+        }
+    }
+}
+
+namespace Behaviors
+{
+    public static class ComboBoxWidthFromItemsBehavior
+    {
+        public static readonly DependencyProperty ComboBoxWidthFromItemsProperty =
+            DependencyProperty.RegisterAttached
+            (
+                "ComboBoxWidthFromItems",
+                typeof(bool),
+                typeof(ComboBoxWidthFromItemsBehavior),
+                new UIPropertyMetadata(false, OnComboBoxWidthFromItemsPropertyChanged)
+            );
+        public static bool GetComboBoxWidthFromItems(DependencyObject obj)
+        {
+            return (bool)obj.GetValue(ComboBoxWidthFromItemsProperty);
+        }
+        public static void SetComboBoxWidthFromItems(DependencyObject obj, bool value)
+        {
+            obj.SetValue(ComboBoxWidthFromItemsProperty, value);
+        }
+        private static void OnComboBoxWidthFromItemsPropertyChanged(DependencyObject dpo,
+                                                                    DependencyPropertyChangedEventArgs e)
+        {
+            ComboBox comboBox = dpo as ComboBox;
+            if (comboBox != null)
+            {
+                if ((bool)e.NewValue == true)
+                {
+                    comboBox.Loaded += OnComboBoxLoaded;
+                }
+                else
+                {
+                    comboBox.Loaded -= OnComboBoxLoaded;
+                }
+            }
+        }
+        private static void OnComboBoxLoaded(object sender, RoutedEventArgs e)
+        {
+            ComboBox comboBox = sender as ComboBox;
+            Action action = () => { comboBox.SetWidthFromItems(); };
+            comboBox.Dispatcher.BeginInvoke(action, DispatcherPriority.ContextIdle);
+        }
+    }
+
+    public static class ComboBoxExtensionMethods
+    {
+        public static void SetWidthFromItems(this ComboBox comboBox)
+        {
+            double comboBoxWidth = 19;// comboBox.DesiredSize.Width;
+
+            // Create the peer and provider to expand the comboBox in code behind. 
+            ComboBoxAutomationPeer peer = new ComboBoxAutomationPeer(comboBox);
+            IExpandCollapseProvider provider = (IExpandCollapseProvider)peer.GetPattern(PatternInterface.ExpandCollapse);
+            EventHandler eventHandler = null;
+            eventHandler = new EventHandler(delegate
+            {
+                if (comboBox.IsDropDownOpen &&
+                    comboBox.ItemContainerGenerator.Status == GeneratorStatus.ContainersGenerated)
+                {
+                    double width = 0;
+                    foreach (var item in comboBox.Items)
+                    {
+                        ComboBoxItem comboBoxItem = comboBox.ItemContainerGenerator.ContainerFromItem(item) as ComboBoxItem;
+                        comboBoxItem.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                        if (comboBoxItem.DesiredSize.Width > width)
+                        {
+                            width = comboBoxItem.DesiredSize.Width;
+                        }
+                    }
+                    comboBox.Width = comboBoxWidth + width;
+                    // Remove the event handler. 
+                    comboBox.ItemContainerGenerator.StatusChanged -= eventHandler;
+                    comboBox.DropDownOpened -= eventHandler;
+                    provider.Collapse();
+                }
+            });
+            comboBox.ItemContainerGenerator.StatusChanged += eventHandler;
+            comboBox.DropDownOpened += eventHandler;
+            // Expand the comboBox to generate all its ComboBoxItem's. 
+            provider.Expand();
         }
     }
 }

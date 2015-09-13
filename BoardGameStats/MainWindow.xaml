@@ -6,6 +6,7 @@
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:BoardGameStats"
+        xmlns:behaviors="clr-namespace:Behaviors"
         mc:Ignorable="d"
         WindowState="Maximized"
         EnableDWMDropShadow="True"
@@ -30,8 +31,12 @@
                 <Separator />
                 <DockPanel>
                     <TextBlock DockPanel.Dock="Left" Text="Only show players with at least " VerticalAlignment="Center" />
-                    <TextBox DockPanel.Dock="Left" Name="WinsFilterTextBox" TextChanged="WinsFilterTextBox_Changed" />
-                    <TextBlock DockPanel.Dock="Left" Text=" wins." VerticalAlignment="Center" />
+                    <TextBox DockPanel.Dock="Left" Name="FilterTextBox" TextChanged="FilterTextBox_Changed" />
+                    <ComboBox DockPanel.Dock="Left" Name="FilterComboBox" DropDownClosed="ComboBox_Changed" behaviors:ComboBoxWidthFromItemsBehavior.ComboBoxWidthFromItems="True" HorizontalAlignment="Left" Margin="5,0,0,0">
+                        <ComboBoxItem Name="WinsItem">wins.</ComboBoxItem>
+                        <ComboBoxItem Name="LossesItem">losses.</ComboBoxItem>
+                        <ComboBoxItem Name="GamesPlayedItem">games played.</ComboBoxItem>
+                    </ComboBox>
                 </DockPanel>
             </StackPanel>
             <StackPanel Name="GamePanel">
