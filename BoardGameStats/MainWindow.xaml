@@ -46,17 +46,21 @@
                     </ComboBox>
                 </DockPanel>
             </StackPanel>
-            <StackPanel Grid.Column="1">
-                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" TextDecorations="Underline" FontSize="18.667">
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" TextDecorations="Underline" FontSize="18.667">
                         Game Statistics
                 </TextBlock>
-                <DataGrid Name="MostPlayedDataGrid" AutoGenerateColumns="False" IsReadOnly="True" MouseDoubleClick="GameCellClick" HorizontalAlignment="Center">
+                <DataGrid Name="MostPlayedDataGrid" Grid.Row="1" AutoGenerateColumns="False" IsReadOnly="True" MouseDoubleClick="GameCellClick" HorizontalAlignment="Center">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Game" Binding="{Binding Key}" />
                         <DataGridTextColumn Header="Times Played" Binding="{Binding Value}" />
                     </DataGrid.Columns>
                 </DataGrid>
-            </StackPanel>
+            </Grid>
         </Grid>
         <xctk:BusyIndicator x:Name="LoadingIndicator" BusyContent="{Binding}" Background="#FF252525">
             <xctk:BusyIndicator.BusyContentTemplate>

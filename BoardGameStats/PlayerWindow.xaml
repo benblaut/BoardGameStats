@@ -12,7 +12,40 @@
         WindowStartupLocation="CenterScreen"              
         Title="PlayerWindow" Height="720" Width="1080">
     <Grid>
-        <TextBlock Name="WinPercentage" HorizontalAlignment="Center">
-        </TextBlock>
+        <DockPanel HorizontalAlignment="Left">
+            <Image Name="PlayerImage" Height="300" Width="175" DockPanel.Dock="Top" Margin="25,25,0,0"/>
+            <TextBlock Name="PlayerName" DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="25,0,0,0" Text="Name" FontSize="24" />
+            <Grid DockPanel.Dock="Top" HorizontalAlignment="Center" ShowGridLines="False" Margin="25,0,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <DockPanel Grid.Column="0" Grid.Row="0" Margin="5">
+                    <TextBlock Text="Wins:" HorizontalAlignment="Left" />
+                    <TextBlock Name="PlayerWins" Text="##" HorizontalAlignment="Right" />
+                </DockPanel>
+                <DockPanel Grid.Column="1" Grid.Row="0" Margin="5">
+                    <TextBlock Text="Losses:" HorizontalAlignment="Left" />
+                    <TextBlock Name="PlayerLosses" Text="##" HorizontalAlignment="Right" />
+                </DockPanel>
+                <DockPanel Grid.Column="0" Grid.Row="1" Margin="5">
+                    <TextBlock Text="Games Played: " HorizontalAlignment="Left" />
+                    <TextBlock Name="PlayerGamesPlayed" Text="##" HorizontalAlignment="Right" />
+                </DockPanel>
+                <DockPanel Grid.Column="1" Grid.Row="1" Margin="5">
+                    <TextBlock Text="Win %: " HorizontalAlignment="Left" />
+                    <TextBlock Name="PlayerWinPercentage" Text="##" HorizontalAlignment="Right" />
+                </DockPanel>
+            </Grid>
+            <DockPanel HorizontalAlignment="Center" Margin="25,5,0,0">
+                <TextBlock Text="Average Placement: " />
+                <TextBlock Name="PlayerAveragePlacement" />
+            </DockPanel>
+        </DockPanel>
+        
     </Grid>
 </Controls:MetroWindow>

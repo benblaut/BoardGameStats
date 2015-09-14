@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 using System.Text.RegularExpressions;
 using System.ComponentModel;
@@ -441,7 +442,7 @@ namespace BoardGameStats
                     newGameEvent.Name = wsFeed.Entries[i].Title.Text;
                     newGameEvent.ID = gameID;
                     GamesPlayed.Add(newGameEvent);
-                    gameID++;
+                    gameID++;                    
                 }
             }
 
@@ -481,14 +482,44 @@ namespace BoardGameStats
             string windowName = selectedPlayer.Name;
             PlayerWindow playerWindow = new PlayerWindow();
 
-            string windowNameTrimmed = windowName.Replace(" ", string.Empty)
-                                                 .Replace("!", string.Empty)
-                                                 .Replace("'", string.Empty);
+            string windowNameTrimmed = windowName.Replace(" ", string.Empty);
 
             playerWindow.Title = windowName;
             playerWindow.Name = windowNameTrimmed;
 
-            playerWindow.WinPercentage.Text = selectedPlayer.WinPercentage.ToString("P");
+            string packUri = "pack://application:,,,/BoardGameStats;component/Resources/";
+            if (selectedPlayer.Wins >= 5 && selectedPlayer.Wins < 10)
+            {
+                packUri += "rook.png";
+            }
+            else if (selectedPlayer.Wins >= 10 && selectedPlayer.Wins < 15)
+            {
+                packUri += "knight.png";
+            }
+            else if (selectedPlayer.Wins >= 15 && selectedPlayer.Wins < 25)
+            {
+                packUri += "bishop.png";
+            }
+            else if (selectedPlayer.Wins >= 25 && selectedPlayer.Wins < 50)
+            {
+                packUri += "queen.png";
+            }
+            else if (selectedPlayer.Wins > 50)
+            {
+                packUri += "king.png";
+            }
+            else
+            {
+                packUri += "pawn.png";
+            }
+            
+            playerWindow.PlayerImage.Source = new ImageSourceConverter().ConvertFromString(packUri) as ImageSource;
+            playerWindow.PlayerName.Text = selectedPlayer.Name;
+            playerWindow.PlayerWins.Text = selectedPlayer.Wins.ToString();
+            playerWindow.PlayerLosses.Text = selectedPlayer.Losses.ToString();
+            playerWindow.PlayerGamesPlayed.Text = selectedPlayer.GamesPlayed.ToString();
+            playerWindow.PlayerAveragePlacement.Text = selectedPlayer.AveragePlacement.ToString();
+            playerWindow.PlayerWinPercentage.Text = selectedPlayer.WinPercentage.ToString("P");
             playerWindow.Show();
         }
 
@@ -508,7 +539,9 @@ namespace BoardGameStats
             gameWindow.Title = windowName;
             string windowNameTrimmed = windowName.Replace(" ", string.Empty)
                                                  .Replace("!", string.Empty)
-                                                 .Replace("'", string.Empty);
+                                                 .Replace("'", string.Empty)
+                                                 .Replace(":", string.Empty)
+                                                 .Replace("7", "Seven");
             gameWindow.Name = windowNameTrimmed;
 
             List<GameEvent> relevantGames = new List<GameEvent>();
@@ -694,7 +727,7 @@ namespace Behaviors
                             width = comboBoxItem.DesiredSize.Width;
                         }
                     }
-                    comboBox.Width = comboBoxWidth + width;
+                    comboBox.Width = comboBoxWidth + width + 10;
                     // Remove the event handler. 
                     comboBox.ItemContainerGenerator.StatusChanged -= eventHandler;
                     comboBox.DropDownOpened -= eventHandler;
