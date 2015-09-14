@@ -7,6 +7,7 @@ using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Threading;
 using System.Text.RegularExpressions;
 using System.ComponentModel;
@@ -120,7 +121,6 @@ namespace BoardGameStats
                         view.Filter = WinsFilter;
 
                         GetGamesPlayedList();
-                        InitializeGameButtons();
                     };
 
                 InitializeInsultList();
@@ -201,23 +201,6 @@ namespace BoardGameStats
 
             gamesPlayedList = gamesPlayedList.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
             MostPlayedDataGrid.ItemsSource = gamesPlayedList;
-        }
-
-        private void InitializeGameButtons()
-        {
-            foreach (WorksheetEntry worksheet in Games.Entries)
-            {
-                Button gameButton = new Button();
-                string worksheetName = worksheet.Title.Text;
-                gameButton.Content = worksheetName;
-                worksheetName = worksheetName.Replace(" ", string.Empty)
-                                             .Replace("!", string.Empty)
-                                             .Replace("'", string.Empty);
-                gameButton.Name = worksheetName + "Button";
-                gameButton.Width = 250;
-                gameButton.Click += gameButton_Click;
-                GameButtonPanel.Children.Add(gameButton);
-            }
         }
 
         private void GetSpreadsheet(SpreadsheetsService service)
@@ -485,9 +468,41 @@ namespace BoardGameStats
             return cellFeeds;
         }
 
-        private void gameButton_Click(object sender, RoutedEventArgs e)
+        private void PlayerCellClick(object sender, MouseButtonEventArgs e)
         {
-            string windowName = ((sender as Button).Content).ToString();
+            DataGridRow row = ItemsControl.ContainerFromElement((DataGrid)sender, e.OriginalSource as DependencyObject) as DataGridRow;
+
+            if (row == null)
+            {
+                return;
+            }
+
+            Player selectedPlayer = (Player)PlayerDataGrid.CurrentCell.Item;
+            string windowName = selectedPlayer.Name;
+            PlayerWindow playerWindow = new PlayerWindow();
+
+            string windowNameTrimmed = windowName.Replace(" ", string.Empty)
+                                                 .Replace("!", string.Empty)
+                                                 .Replace("'", string.Empty);
+
+            playerWindow.Title = windowName;
+            playerWindow.Name = windowNameTrimmed;
+
+            playerWindow.WinPercentage.Text = selectedPlayer.WinPercentage.ToString("P");
+            playerWindow.Show();
+        }
+
+        private void GameCellClick(object sender, MouseButtonEventArgs e)
+        {
+            DataGridRow row = ItemsControl.ContainerFromElement((DataGrid)sender, e.OriginalSource as DependencyObject) as DataGridRow;
+
+            if (row == null)
+            {
+                return;
+            }
+
+            KeyValuePair<string, int> selectedItem = (KeyValuePair<string, int>)MostPlayedDataGrid.CurrentCell.Item;
+            string windowName = selectedItem.Key;
             GameWindow gameWindow = new GameWindow();
 
             gameWindow.Title = windowName;

@@ -25,7 +25,7 @@
                 <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" TextDecorations="Underline" FontSize="18.667">
                         Player Statistics
                 </TextBlock>
-                <DataGrid Name="PlayerDataGrid" ItemsSource="{Binding Players}" CanUserAddRows="False" AutoGenerateColumns="False" HorizontalAlignment="Left">
+                <DataGrid Name="PlayerDataGrid" ItemsSource="{Binding Players}" IsReadOnly="True" MouseDoubleClick="PlayerCellClick" CanUserAddRows="False" AutoGenerateColumns="False" HorizontalAlignment="Center">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Player" Binding="{Binding Name}" />
                         <DataGridTextColumn Header="Wins" Binding="{Binding Wins}" />
@@ -35,8 +35,8 @@
                         <DataGridTextColumn Header="Avg. Placement" Binding="{Binding AveragePlacement}" />
                     </DataGrid.Columns>
                 </DataGrid>
-                <Separator />
-                <DockPanel>
+                <Separator Width="{Binding ActualWidth, ElementName=PlayerDataGrid}" />
+                <DockPanel HorizontalAlignment="Center">
                     <TextBlock DockPanel.Dock="Left" Text="Only show players with at least " VerticalAlignment="Center" />
                     <TextBox DockPanel.Dock="Left" Name="FilterTextBox" TextChanged="FilterTextBox_Changed" />
                     <ComboBox DockPanel.Dock="Left" Name="FilterComboBox" DropDownClosed="ComboBox_Changed" behaviors:ComboBoxWidthFromItemsBehavior.ComboBoxWidthFromItems="True" HorizontalAlignment="Left" Margin="5,0,0,0">
@@ -50,20 +50,12 @@
                 <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" TextDecorations="Underline" FontSize="18.667">
                         Game Statistics
                 </TextBlock>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <DataGrid Name="MostPlayedDataGrid" AutoGenerateColumns="False" Grid.Column="0">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Game" Binding="{Binding Key}" Width="0.8*" />
-                            <DataGridTextColumn Header="Times Played" Binding="{Binding Value}" />
-                        </DataGrid.Columns>
-                    </DataGrid>
-                    <StackPanel Name="GameButtonPanel" Width="Auto" Grid.Column="1">
-                    </StackPanel>
-                </Grid>
+                <DataGrid Name="MostPlayedDataGrid" AutoGenerateColumns="False" IsReadOnly="True" MouseDoubleClick="GameCellClick" HorizontalAlignment="Center">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Game" Binding="{Binding Key}" />
+                        <DataGridTextColumn Header="Times Played" Binding="{Binding Value}" />
+                    </DataGrid.Columns>
+                </DataGrid>
             </StackPanel>
         </Grid>
         <xctk:BusyIndicator x:Name="LoadingIndicator" BusyContent="{Binding}" Background="#FF252525">
