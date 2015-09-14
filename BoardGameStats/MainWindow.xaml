@@ -16,9 +16,16 @@
         Title="Board Game Stats" Height="720" Width="1080"
         Loaded="Window_Loaded">
     <Grid>
-        <DockPanel>
-            <StackPanel DockPanel.Dock="Left">
-                <DataGrid Name="PlayerDataGrid" ItemsSource="{Binding Players}" CanUserAddRows="False" AutoGenerateColumns="False">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.5*" />
+                <ColumnDefinition Width="0.5*" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" TextDecorations="Underline" FontSize="18.667">
+                        Player Statistics
+                </TextBlock>
+                <DataGrid Name="PlayerDataGrid" ItemsSource="{Binding Players}" CanUserAddRows="False" AutoGenerateColumns="False" HorizontalAlignment="Left">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Player" Binding="{Binding Name}" />
                         <DataGridTextColumn Header="Wins" Binding="{Binding Wins}" />
@@ -39,12 +46,26 @@
                     </ComboBox>
                 </DockPanel>
             </StackPanel>
-            <StackPanel Name="GamePanel">
+            <StackPanel Grid.Column="1">
                 <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" TextDecorations="Underline" FontSize="18.667">
-                    Games
+                        Game Statistics
                 </TextBlock>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <DataGrid Name="MostPlayedDataGrid" AutoGenerateColumns="False" Grid.Column="0">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Game" Binding="{Binding Key}" Width="0.8*" />
+                            <DataGridTextColumn Header="Times Played" Binding="{Binding Value}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <StackPanel Name="GameButtonPanel" Width="Auto" Grid.Column="1">
+                    </StackPanel>
+                </Grid>
             </StackPanel>
-        </DockPanel>
+        </Grid>
         <xctk:BusyIndicator x:Name="LoadingIndicator" BusyContent="{Binding}" Background="#FF252525">
             <xctk:BusyIndicator.BusyContentTemplate>
                 <DataTemplate>

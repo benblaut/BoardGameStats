@@ -115,11 +115,12 @@ namespace BoardGameStats
                     {
                         LoadingIndicator.IsBusy = false;
 
-                        InitializeGameButtons();
-
                         FilterComboBox.SelectedIndex = 0;
                         CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(PlayerDataGrid.ItemsSource);
                         view.Filter = WinsFilter;
+
+                        GetGamesPlayedList();
+                        InitializeGameButtons();
                     };
 
                 InitializeInsultList();
@@ -184,6 +185,24 @@ namespace BoardGameStats
             }
         }
 
+        private void GetGamesPlayedList()
+        {
+            Dictionary<string, int> gamesPlayedList = new Dictionary<string, int>();
+
+            foreach (WorksheetEntry worksheet in Games.Entries)
+            {
+                gamesPlayedList.Add(worksheet.Title.Text, 0);
+            }
+
+            foreach(GameEvent game in GamesPlayed)
+            {
+                gamesPlayedList[game.Name]++;
+            }
+
+            gamesPlayedList = gamesPlayedList.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+            MostPlayedDataGrid.ItemsSource = gamesPlayedList;
+        }
+
         private void InitializeGameButtons()
         {
             foreach (WorksheetEntry worksheet in Games.Entries)
@@ -197,7 +216,7 @@ namespace BoardGameStats
                 gameButton.Name = worksheetName + "Button";
                 gameButton.Width = 250;
                 gameButton.Click += gameButton_Click;
-                GamePanel.Children.Add(gameButton);
+                GameButtonPanel.Children.Add(gameButton);
             }
         }
 
