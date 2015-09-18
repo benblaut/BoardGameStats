@@ -271,7 +271,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">
       <Visible>False</Visible>
@@ -285,12 +284,32 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\bishop.png" />
-    <Resource Include="Resources\king.png" />
-    <Resource Include="Resources\knight.png" />
-    <Resource Include="Resources\pawn.png" />
-    <Resource Include="Resources\queen.png" />
-    <Resource Include="Resources\rook.png" />
+    <Resource Include="Resources\Images\bishop.png" />
+    <Resource Include="Resources\Images\king.png" />
+    <Resource Include="Resources\Images\knight.png" />
+    <Resource Include="Resources\Images\pawn.png" />
+    <Resource Include="Resources\Images\queen.png" />
+    <Resource Include="Resources\Images\rook.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Media\Sounds\AIRHORN.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Media\Sounds\AND HIS NAME IS JOHN CENA.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Media\Sounds\Bird Up!.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Media\Sounds\Im a computah.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Media\Sounds\RKO OUTTA NOWHERE.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Media\Sounds\Smoke Weed Every Day.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />

@@ -101,6 +101,7 @@ namespace BoardGameStats
         private void DisplayLoginScreen()
         {
             LoginWindow loginWindow = new LoginWindow();
+            MediaElement player = new MediaElement();
 
             loginWindow.Owner = this;
             loginWindow.ShowDialog();
@@ -110,6 +111,7 @@ namespace BoardGameStats
                 worker.WorkerReportsProgress = true;
                 worker.DoWork += (o, ea) =>
                     {
+                        Dispatcher.Invoke((Action)(() => player.Play()));
                         GetSpreadsheet(loginWindow.service);
                         Dispatcher.Invoke((Action)(() => PlayerDataGrid.ItemsSource = Players));
                     };
@@ -127,9 +129,12 @@ namespace BoardGameStats
                 InitializeInsultList();
                 Random random = new Random();
                 int randomNum = random.Next(InsultList.Count);
+                
                 LoadingIndicator.IsBusy = true;
                 LoadingIndicator.BusyContent = InsultList[randomNum];
+                
                 worker.RunWorkerAsync();
+                GetSound(randomNum, player);
             }
             else
             {
@@ -137,22 +142,61 @@ namespace BoardGameStats
             }
         }
 
+        private void GetSound(int randomNum, MediaElement player)
+        {
+            string soundPath = "Media/Sounds/";
+
+            if (randomNum == 0)
+            {
+                soundPath += "AND HIS NAME IS JOHN CENA.mp3";
+            }
+            else if (randomNum == 1)
+            {
+                soundPath += "AIRHORN.mp3";
+            }
+            else if (randomNum == 2)
+            {
+                soundPath += "RKO OUTTA NOWHERE.mp3";
+            }
+            else if (randomNum == 3)
+            {
+                soundPath += "Im a computah.mp3";
+            }
+            else if (randomNum == 4)
+            {
+                soundPath += "Smoke Weed Every Day.mp3";
+            }
+            else if (randomNum == 5)
+            {
+                soundPath += "Bird Up!.mp3";
+            }
+
+            Uri packUri = new Uri(soundPath, UriKind.Relative);
+            player.LoadedBehavior = MediaState.Manual;
+            player.UnloadedBehavior = MediaState.Manual;
+            player.Source = packUri;
+        }
+
         private void InitializeInsultList()
         {
             InsultList = new List<string>();
 
+            InsultList.Add("Fetching statistics, and his name is Johhhhhhhhhhhhn Cena!!!...");
+            InsultList.Add("Fetching statistics, please wait...");
+            InsultList.Add("Fetching statistics, please w...RANDY ORTON OUTTA NOWHERE!!! RKO! RKO!");
+            InsultList.Add("Fetching statistics, stop all the downloadin'...");
+            InsultList.Add("Fetching statistics, smoke weed every day...");
+            InsultList.Add("Fetching statistics, bird up...");
             InsultList.Add("Fetching statistics, calm your tits...");
             InsultList.Add("Fetching statistics, cool your jets...");
             InsultList.Add("Fetching statistics, if you can't stand the heat, get out of the street...");
             InsultList.Add("Fetching statistics, u fuckin wot m8?...");
             InsultList.Add("Fetching statistics, go masturbate or something...");
             InsultList.Add("Fetching statistics, bitch...");
-            InsultList.Add("Fetching statistics, smoke weed every day...");
-            InsultList.Add("Fetching statistics, 360 no scope faggot...");
-            InsultList.Add("Fetching statistics, please w...RANDY ORTON OUTTA NOWHERE!!! RKO! RKO!");
+            InsultList.Add("Fetching statistics, 360 no scope faggot...");     
             InsultList.Add("Fetching statistics, <insert flavor text>...");
-            InsultList.Add("Fetching statistics, John Cena was here...");
-            InsultList.Add("Fetching statistics, bird up...");
+            InsultList.Add("Fetching statistics, yes, it takes a while...");
+            InsultList.Add("Fetching statistics, blame Google for the wait...");
         }
 
         private void FilterTextBox_Changed(object sender, TextChangedEventArgs e)
@@ -487,18 +531,18 @@ namespace BoardGameStats
             playerWindow.Title = windowName;
             playerWindow.Name = windowNameTrimmed;
 
-            string packUri = "pack://application:,,,/BoardGameStats;component/Resources/";
+            string packUri = "pack://application:,,,/BoardGameStats;component/Resources/Images/";
             if (selectedPlayer.Wins >= 5 && selectedPlayer.Wins < 10)
-            {
-                packUri += "rook.png";
-            }
-            else if (selectedPlayer.Wins >= 10 && selectedPlayer.Wins < 15)
             {
                 packUri += "knight.png";
             }
-            else if (selectedPlayer.Wins >= 15 && selectedPlayer.Wins < 25)
+            else if (selectedPlayer.Wins >= 10 && selectedPlayer.Wins < 15)
             {
                 packUri += "bishop.png";
+            }
+            else if (selectedPlayer.Wins >= 15 && selectedPlayer.Wins < 25)
+            {
+                packUri += "rook.png";
             }
             else if (selectedPlayer.Wins >= 25 && selectedPlayer.Wins < 50)
             {
