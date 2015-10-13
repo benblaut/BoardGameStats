@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:local="clr-namespace:BoardGameStats"
+        xmlns:behaviors="clr-namespace:Behaviors"
         mc:Ignorable="d"
         EnableDWMDropShadow="True"
         ResizeMode="CanResizeWithGrip"
@@ -12,7 +13,7 @@
         WindowStartupLocation="CenterScreen"              
         Title="PlayerWindow" Height="720" Width="1080">
     <Grid>
-        <DockPanel HorizontalAlignment="Left">
+        <DockPanel HorizontalAlignment="Left" LastChildFill="False" Width="275">
             <Image Name="PlayerImage" Height="300" Width="175" DockPanel.Dock="Top" Margin="25,25,0,0"/>
             <TextBlock Name="PlayerName" DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="25,0,0,0" Text="Name" FontSize="24" />
             <Grid DockPanel.Dock="Top" HorizontalAlignment="Center" ShowGridLines="False" Margin="25,0,0,0">
@@ -41,11 +42,106 @@
                     <TextBlock Name="PlayerWinPercentage" Text="##" HorizontalAlignment="Right" />
                 </DockPanel>
             </Grid>
-            <DockPanel HorizontalAlignment="Center" Margin="25,5,0,0">
+            <DockPanel HorizontalAlignment="Center" DockPanel.Dock="Top" Margin="25,5,0,0">
                 <TextBlock Text="Average Placement: " />
                 <TextBlock Name="PlayerAveragePlacement" />
             </DockPanel>
+            <Grid DockPanel.Dock="Top">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock HorizontalAlignment="Center" DockPanel.Dock="Top" Text="Best Game(s)" Margin="25,25,0,0" FontSize="16" FontWeight="Bold" Grid.Row="0" />
+                <DataGrid Name="BestGame" Grid.Row="1" HorizontalAlignment="Center" DockPanel.Dock="Top" Margin="25,5,0,0" IsReadOnly="True" AutoGenerateColumns="False">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Game" Binding="{Binding Key}" Width="0.6*" />
+                        <DataGridTextColumn Header="Win # or %" Binding="{Binding Value}" Width="0.4*">
+                            <DataGridTextColumn.CellStyle>
+                                <Style>
+                                    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Center" />
+                                </Style>
+                            </DataGridTextColumn.CellStyle>
+                        </DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <!--<ScrollViewer Grid.Row="1" HorizontalAlignment="Center" DockPanel.Dock="Top" Margin="25,5,0,0">
+                    <ListBox Name="BestGame" Grid.IsSharedSizeScope="True">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition SharedSizeGroup="Key" />
+                                        <ColumnDefinition SharedSizeGroup="Value" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Key}" Margin="5" Grid.Column="0" />
+                                    <TextBlock Text="{Binding Value}" Margin="5" Grid.Column="1" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                    </ListBox>
+                </ScrollViewer>-->
+                <TextBlock HorizontalAlignment="Center" DockPanel.Dock="Top" Text="Worst Game(s)" Margin="25,25,0,0" FontSize="16" FontWeight="Bold" Grid.Row="2" />
+                <DataGrid Name="WorstGame" Grid.Row="3" HorizontalAlignment="Center" DockPanel.Dock="Top" Margin="25,5,0,0" IsReadOnly="True" AutoGenerateColumns="False">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Game" Binding="{Binding Key}" Width="0.6*" />
+                        <DataGridTextColumn Header="Loss # or %" Binding="{Binding Value}" Width="0.4*">
+                            <DataGridTextColumn.CellStyle>
+                                <Style>
+                                    <Setter Property="FrameworkElement.HorizontalAlignment" Value="Center" />
+                                </Style>
+                            </DataGridTextColumn.CellStyle>
+                        </DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <!--<ScrollViewer Grid.Row="3" HorizontalAlignment="Center" DockPanel.Dock="Top" Margin="25,5,0,0">
+                    <ListBox Name="WorstGame">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition SharedSizeGroup="Key" />
+                                        <ColumnDefinition SharedSizeGroup="Value" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Key}" Margin="5" Grid.Column="0" />
+                                    <TextBlock Text="{Binding Value}" Margin="5" Grid.Column="1" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                    </ListBox>
+                </ScrollViewer>-->
+                <DockPanel HorizontalAlignment="Center" DockPanel.Dock="Top" Margin="25,10,0,0" Grid.Row="4">
+                    <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Text="Based on: " />
+                    <ComboBox Name="BestGameComboBox" DockPanel.Dock="Left" DropDownClosed="BestGameSort_Changed" behaviors:ComboBoxWidthFromItemsBehavior.ComboBoxWidthFromItems="True">
+                        <ComboBoxItem Name="WinsItem">wins.</ComboBoxItem>
+                        <ComboBoxItem Name="WinPercentageItem">win percentage.</ComboBoxItem>
+                    </ComboBox>
+                </DockPanel>
+                <DockPanel HorizontalAlignment="Center" DockPanel.Dock="Top" Margin="25,0,0,0" Grid.Row="5">
+                    <TextBlock Text="Limit to games played at least " />
+                    <ComboBox Name="LimitComboBox" DockPanel.Dock="Left" DropDownClosed="LimitComboBox_Changed" behaviors:ComboBoxWidthFromItemsBehavior.ComboBoxWidthFromItems="True">
+                        <ComboBoxItem Name="One">1</ComboBoxItem>
+                        <ComboBoxItem Name="Two">2</ComboBoxItem>
+                        <ComboBoxItem Name="Three">3</ComboBoxItem>
+                        <ComboBoxItem Name="Four">4</ComboBoxItem>
+                        <ComboBoxItem Name="Five">5</ComboBoxItem>
+                    </ComboBox>
+                    <TextBlock Text=" times." />
+                </DockPanel>
+            </Grid>
         </DockPanel>
-        
     </Grid>
 </Controls:MetroWindow>

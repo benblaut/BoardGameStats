@@ -123,7 +123,7 @@ namespace BoardGameStats
                         CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(PlayerDataGrid.ItemsSource);
                         view.Filter = WinsFilter;
 
-                        GetGamesPlayedList();
+                        GetGamesPlayed();
                     };
 
                 InitializeInsultList();
@@ -204,7 +204,7 @@ namespace BoardGameStats
             CollectionViewSource.GetDefaultView(PlayerDataGrid.ItemsSource).Refresh();
         }
 
-        private void ComboBox_Changed(object sender, EventArgs e)
+        private void FilterComboBox_Changed(object sender, EventArgs e)
         {
             CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(PlayerDataGrid.ItemsSource);
 
@@ -230,22 +230,22 @@ namespace BoardGameStats
             }
         }
 
-        private void GetGamesPlayedList()
+        private void GetGamesPlayed()
         {
-            Dictionary<string, int> gamesPlayedList = new Dictionary<string, int>();
+            Dictionary<string, int> gamesPlayedDict = new Dictionary<string, int>();
 
             foreach (WorksheetEntry worksheet in Games.Entries)
             {
-                gamesPlayedList.Add(worksheet.Title.Text, 0);
+                gamesPlayedDict.Add(worksheet.Title.Text, 0);
             }
 
             foreach(GameEvent game in GamesPlayed)
             {
-                gamesPlayedList[game.Name]++;
+                gamesPlayedDict[game.Name]++;
             }
 
-            gamesPlayedList = gamesPlayedList.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
-            MostPlayedDataGrid.ItemsSource = gamesPlayedList;
+            gamesPlayedDict = gamesPlayedDict.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+            MostPlayedDataGrid.ItemsSource = gamesPlayedDict;
         }
 
         private void GetSpreadsheet(SpreadsheetsService service)
@@ -287,37 +287,49 @@ namespace BoardGameStats
             {
                 CellFeed currentCellFeed = cellFeeds[i];
 
-                foreach (CellEntry cell in currentCellFeed.Entries)
+                if (currentCellFeed != null)
                 {
-                    string playerList = cell.InputValue;
-                    string[] playerNames = playerList.Split(',').Select(sValue => sValue.Trim()).ToArray();
-
-                    foreach (string playerName in playerNames)
+                    foreach (CellEntry cell in currentCellFeed.Entries)
                     {
-                        if (!Players.Exists(player => player.Name == playerName))
+                        string playerList = cell.InputValue;
+                        string[] playerNames = null;
+
+                        if (!String.IsNullOrWhiteSpace(playerList))
                         {
-                            Players.Add(new Player() { Name = playerName });
+                            playerNames = playerList.Split(',').Select(sValue => sValue.Trim()).ToArray();
+                        }
+                        else
+                        {
+                            break;
                         }
 
-                        Player myPlayer = new Player();
-                        myPlayer = Players.Find(player => player.Name == playerName);
-                        myPlayer.GamesPlayed += 1;
-
-                        foreach (GameEvent gameEvent in GamesPlayed)
+                        foreach (string playerName in playerNames)
                         {
-                            if (gameEvent.Name == wsFeed.Entries[i].Title.Text && gameEvent.ID == cellID)
+                            if (!Players.Exists(player => player.Name == playerName))
                             {
-                                if (gameEvent.Participants == null)
-                                {
-                                    gameEvent.Participants = new List<Player>();
-                                }
+                                Players.Add(new Player() { Name = playerName });
+                            }
 
-                                gameEvent.Participants.Add(myPlayer);
+                            Player myPlayer = new Player();
+                            myPlayer = Players.Find(player => player.Name == playerName);
+                            myPlayer.GamesPlayed += 1;
+
+                            foreach (GameEvent gameEvent in GamesPlayed)
+                            {
+                                if (gameEvent.Name == wsFeed.Entries[i].Title.Text && gameEvent.ID == cellID)
+                                {
+                                    if (gameEvent.Participants == null)
+                                    {
+                                        gameEvent.Participants = new List<Player>();
+                                    }
+
+                                    gameEvent.Participants.Add(myPlayer);
+                                }
                             }
                         }
-                    }
 
-                    cellID++;
+                        cellID++;
+                    }
                 }
             }
 
@@ -333,58 +345,70 @@ namespace BoardGameStats
             {
                 CellFeed currentCellFeed = cellFeeds[i];
 
-                foreach (CellEntry cell in currentCellFeed.Entries)
+                if (currentCellFeed != null)
                 {
-                    string playerList = cell.InputValue;
-                    string[] playerNames = playerList.Split(',').Select(sValue => sValue.Trim()).ToArray();
-
-                    foreach (string playerName in playerNames)
+                    foreach (CellEntry cell in currentCellFeed.Entries)
                     {
-                        string placement = null;
-                        string playerNameTrimmed = null;
+                        string playerList = cell.InputValue;
+                        string[] playerNames = null;
 
-                        if (playerName.Contains("("))
+                        if (!String.IsNullOrWhiteSpace(playerList))
                         {
-                            placement = Regex.Match(playerName, @"\(([^)]*)\)").Groups[1].Value;
-                            playerNameTrimmed = playerName.Remove(playerName.Length - 4);
+                            playerNames = playerList.Split(',').Select(sValue => sValue.Trim()).ToArray();
                         }
                         else
                         {
-                            playerNameTrimmed = playerName;
+                            break;
                         }
 
-                        if (Players.Exists(player => player.Name == playerNameTrimmed))
+                        foreach (string playerName in playerNames)
                         {
-                            Player myPlayer = new Player();
-                            myPlayer = Players.Find(player => player.Name == playerNameTrimmed);
-                            myPlayer.Wins += 1;
+                            string placement = null;
+                            string playerNameTrimmed = null;
 
-                            if (placement != null)
+                            if (playerName.Contains("("))
                             {
-                                if (myPlayer.Placement == null)
-                                {
-                                    myPlayer.Placement = new List<int>();
-                                }
-
-                                myPlayer.Placement.Add(Int32.Parse(placement));
+                                placement = Regex.Match(playerName, @"\(([^)]*)\)").Groups[1].Value;
+                                playerNameTrimmed = playerName.Remove(playerName.Length - 4);
+                            }
+                            else
+                            {
+                                playerNameTrimmed = playerName;
                             }
 
-                            foreach (GameEvent gameEvent in GamesPlayed)
+                            if (Players.Exists(player => player.Name == playerNameTrimmed))
                             {
-                                if (gameEvent.Name == wsFeed.Entries[i].Title.Text && gameEvent.ID == cellID)
+                                Player myPlayer = new Player();
+                                myPlayer = Players.Find(player => player.Name == playerNameTrimmed);
+                                myPlayer.Wins += 1;
+
+                                if (placement != null)
                                 {
-                                    if (gameEvent.Winners == null)
+                                    if (myPlayer.Placement == null)
                                     {
-                                        gameEvent.Winners = new List<Player>();
+                                        myPlayer.Placement = new List<int>();
                                     }
 
-                                    gameEvent.Winners.Add(myPlayer);
+                                    myPlayer.Placement.Add(Int32.Parse(placement));
+                                }
+
+                                foreach (GameEvent gameEvent in GamesPlayed)
+                                {
+                                    if (gameEvent.Name == wsFeed.Entries[i].Title.Text && gameEvent.ID == cellID)
+                                    {
+                                        if (gameEvent.Winners == null)
+                                        {
+                                            gameEvent.Winners = new List<Player>();
+                                        }
+
+                                        gameEvent.Winners.Add(myPlayer);
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    cellID++;
+                        cellID++;
+                    }
                 }
             }
 
@@ -405,58 +429,70 @@ namespace BoardGameStats
             {
                 CellFeed currentCellFeed = cellFeeds[i];
 
-                foreach (CellEntry cell in currentCellFeed.Entries)
+                if (currentCellFeed != null)
                 {
-                    string playerList = cell.InputValue;
-                    string[] playerNames = playerList.Split(',').Select(sValue => sValue.Trim()).ToArray();
-
-                    foreach (string playerName in playerNames)
+                    foreach (CellEntry cell in currentCellFeed.Entries)
                     {
-                        string placement = null;
-                        string playerNameTrimmed = null;
+                        string playerList = cell.InputValue;
+                        string[] playerNames = null;
 
-                        if (playerName.Contains("("))
+                        if (!String.IsNullOrWhiteSpace(playerList))
                         {
-                            placement = Regex.Match(playerName, @"\(([^)]*)\)").Groups[1].Value;
-                            playerNameTrimmed = playerName.Remove(playerName.Length - 4);
+                            playerNames = playerList.Split(',').Select(sValue => sValue.Trim()).ToArray();
                         }
                         else
                         {
-                            playerNameTrimmed = playerName;
+                            break;
                         }
 
-                        if (Players.Exists(player => player.Name == playerNameTrimmed))
+                        foreach (string playerName in playerNames)
                         {
-                            Player myPlayer = new Player();
-                            myPlayer = Players.Find(player => player.Name == playerNameTrimmed);
-                            myPlayer.Losses += 1;
+                            string placement = null;
+                            string playerNameTrimmed = null;
 
-                            if (placement != null)
+                            if (playerName.Contains("("))
                             {
-                                if (myPlayer.Placement == null)
-                                {
-                                    myPlayer.Placement = new List<int>();
-                                }
-
-                                myPlayer.Placement.Add(Int32.Parse(placement));
+                                placement = Regex.Match(playerName, @"\(([^)]*)\)").Groups[1].Value;
+                                playerNameTrimmed = playerName.Remove(playerName.Length - 4);
+                            }
+                            else
+                            {
+                                playerNameTrimmed = playerName;
                             }
 
-                            foreach (GameEvent gameEvent in GamesPlayed)
+                            if (Players.Exists(player => player.Name == playerNameTrimmed))
                             {
-                                if (gameEvent.Name == wsFeed.Entries[i].Title.Text && gameEvent.ID == cellID)
+                                Player myPlayer = new Player();
+                                myPlayer = Players.Find(player => player.Name == playerNameTrimmed);
+                                myPlayer.Losses += 1;
+
+                                if (placement != null)
                                 {
-                                    if (gameEvent.Losers == null)
+                                    if (myPlayer.Placement == null)
                                     {
-                                        gameEvent.Losers = new List<Player>();
+                                        myPlayer.Placement = new List<int>();
                                     }
 
-                                    gameEvent.Losers.Add(myPlayer);
+                                    myPlayer.Placement.Add(Int32.Parse(placement));
+                                }
+
+                                foreach (GameEvent gameEvent in GamesPlayed)
+                                {
+                                    if (gameEvent.Name == wsFeed.Entries[i].Title.Text && gameEvent.ID == cellID)
+                                    {
+                                        if (gameEvent.Losers == null)
+                                        {
+                                            gameEvent.Losers = new List<Player>();
+                                        }
+
+                                        gameEvent.Losers.Add(myPlayer);
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    cellID++;
+                        cellID++;
+                    }
                 }
             }
 
@@ -477,17 +513,21 @@ namespace BoardGameStats
             {
                 CellFeed currentCellFeed = cellFeeds[i];
 
-                foreach (CellEntry cell in currentCellFeed.Entries)
+                if (currentCellFeed != null)
                 {
-                    GameEvent newGameEvent = new GameEvent();
-                    string dateTimeString = cell.InputValue;
-                    DateTime dateTime = DateTime.Parse(dateTimeString);
-                    newGameEvent.Date = dateTime;
-                    newGameEvent.Name = wsFeed.Entries[i].Title.Text;
-                    newGameEvent.ID = gameID;
-                    GamesPlayed.Add(newGameEvent);
-                    gameID++;                    
+                    foreach (CellEntry cell in currentCellFeed.Entries)
+                    {
+                        GameEvent newGameEvent = new GameEvent();
+                        string dateTimeString = cell.InputValue;
+                        DateTime dateTime = DateTime.Parse(dateTimeString);
+                        newGameEvent.Date = dateTime;
+                        newGameEvent.Name = wsFeed.Entries[i].Title.Text;
+                        newGameEvent.ID = gameID;
+                        GamesPlayed.Add(newGameEvent);
+                        gameID++;
+                    }
                 }
+               
             }
 
             GetPlayers(service, entry, wsFeed);
@@ -500,14 +540,23 @@ namespace BoardGameStats
 
             foreach (WorksheetEntry worksheet in wsFeed.Entries)
             {
-                CellQuery cellQuery = new CellQuery(worksheet.CellFeedLink);
-                cellQuery.MinimumRow = minRow;
-                cellQuery.MinimumColumn = minColumn;
-                cellQuery.MaximumColumn = maxColumn;
-                CellFeed cellFeed = service.Query(cellQuery);
+                if (worksheet.Title.Text[0] != '0')
+                {
+                    CellQuery cellQuery = new CellQuery(worksheet.CellFeedLink);
+                    cellQuery.MinimumRow = minRow;
+                    cellQuery.MinimumColumn = minColumn;
+                    cellQuery.MaximumColumn = maxColumn;
+                    CellFeed cellFeed = service.Query(cellQuery);
 
-                cellFeeds.Insert(i, cellFeed);
-                i++;
+                    cellFeeds.Insert(i, cellFeed);
+                    i++;
+                }
+                else
+                {
+                    CellFeed cellFeed = null;
+                    cellFeeds.Insert(i, cellFeed);
+                    i++;
+                }
             }
 
             return cellFeeds;
@@ -524,46 +573,13 @@ namespace BoardGameStats
 
             Player selectedPlayer = (Player)PlayerDataGrid.CurrentCell.Item;
             string windowName = selectedPlayer.Name;
-            PlayerWindow playerWindow = new PlayerWindow();
+            PlayerWindow playerWindow = new PlayerWindow(selectedPlayer, GamesPlayed);
 
             string windowNameTrimmed = windowName.Replace(" ", string.Empty);
 
             playerWindow.Title = windowName;
             playerWindow.Name = windowNameTrimmed;
 
-            string packUri = "pack://application:,,,/BoardGameStats;component/Resources/Images/";
-            if (selectedPlayer.Wins >= 5 && selectedPlayer.Wins < 10)
-            {
-                packUri += "knight.png";
-            }
-            else if (selectedPlayer.Wins >= 10 && selectedPlayer.Wins < 15)
-            {
-                packUri += "bishop.png";
-            }
-            else if (selectedPlayer.Wins >= 15 && selectedPlayer.Wins < 25)
-            {
-                packUri += "rook.png";
-            }
-            else if (selectedPlayer.Wins >= 25 && selectedPlayer.Wins < 50)
-            {
-                packUri += "queen.png";
-            }
-            else if (selectedPlayer.Wins > 50)
-            {
-                packUri += "king.png";
-            }
-            else
-            {
-                packUri += "pawn.png";
-            }
-            
-            playerWindow.PlayerImage.Source = new ImageSourceConverter().ConvertFromString(packUri) as ImageSource;
-            playerWindow.PlayerName.Text = selectedPlayer.Name;
-            playerWindow.PlayerWins.Text = selectedPlayer.Wins.ToString();
-            playerWindow.PlayerLosses.Text = selectedPlayer.Losses.ToString();
-            playerWindow.PlayerGamesPlayed.Text = selectedPlayer.GamesPlayed.ToString();
-            playerWindow.PlayerAveragePlacement.Text = selectedPlayer.AveragePlacement.ToString();
-            playerWindow.PlayerWinPercentage.Text = selectedPlayer.WinPercentage.ToString("P");
             playerWindow.Show();
         }
 
@@ -585,7 +601,9 @@ namespace BoardGameStats
                                                  .Replace("!", string.Empty)
                                                  .Replace("'", string.Empty)
                                                  .Replace(":", string.Empty)
-                                                 .Replace("7", "Seven");
+                                                 .Replace("&", "and")
+                                                 .Replace("7", "Seven")
+                                                 .Replace("0", string.Empty);
             gameWindow.Name = windowNameTrimmed;
 
             List<GameEvent> relevantGames = new List<GameEvent>();

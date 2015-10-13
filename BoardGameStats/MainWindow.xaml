@@ -39,7 +39,7 @@
                 <DockPanel HorizontalAlignment="Center">
                     <TextBlock DockPanel.Dock="Left" Text="Only show players with at least " VerticalAlignment="Center" />
                     <TextBox DockPanel.Dock="Left" Name="FilterTextBox" TextChanged="FilterTextBox_Changed" />
-                    <ComboBox DockPanel.Dock="Left" Name="FilterComboBox" DropDownClosed="ComboBox_Changed" behaviors:ComboBoxWidthFromItemsBehavior.ComboBoxWidthFromItems="True" HorizontalAlignment="Left" Margin="5,0,0,0">
+                    <ComboBox DockPanel.Dock="Left" Name="FilterComboBox" DropDownClosed="FilterComboBox_Changed" behaviors:ComboBoxWidthFromItemsBehavior.ComboBoxWidthFromItems="True" HorizontalAlignment="Left" Margin="5,0,0,0">
                         <ComboBoxItem Name="WinsItem">wins.</ComboBoxItem>
                         <ComboBoxItem Name="LossesItem">losses.</ComboBoxItem>
                         <ComboBoxItem Name="GamesPlayedItem">games played.</ComboBoxItem>
